@@ -257,7 +257,7 @@ $(document).ready(function(){
       //add delete button for each stock
       $('#deleteButton').remove()
       var $deleteButton = $('<button>')
-                            .text('jsladkfjasdlkfjslk')
+                            .text('DELETE')
                             .attr('id','deleteButton')
 
       $('.saved').append($deleteButton)
