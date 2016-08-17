@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>StockData</title>
+    <%= csrf_meta_tags %>
+<!--     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.css"> -->
+
+    <%= stylesheet_link_tag    'application', media: 'all' %>
+    <%= javascript_include_tag 'application' %>
+  </head>
+
+  <body>
+    <% if current_user %>
+        <p class="logOut"><%= 'Welcome, ' + current_user.first_name %><br/>
+           <%= link_to "LOG OUT", logout_path, method: "delete" %></a></p>
+    <% else %>
+        <p><%= link_to "LOGIN", 'login' %></a></p>
+        <p><%= link_to "SIGNUP", 'signup' %></a></p>
+    <% end %>
+    <%= yield %>
+  </body>
+</html>

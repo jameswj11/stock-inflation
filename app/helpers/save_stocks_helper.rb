@@ -1,0 +1,2 @@
+module SaveStocksHelper
+end

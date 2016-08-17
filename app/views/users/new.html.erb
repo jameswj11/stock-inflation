@@ -1,0 +1,11 @@
+<!-- built with help from codeacademy course on rails auth -->
+
+<h3>Sign Up</h3>
+
+<%= form_for(@user) do |f| %>
+  <%= f.text_field :first_name, :placeholder => "FIRST NAME" %><br/>
+  <%= f.text_field :last_name, :placeholder => "LAST NAME" %><br/>
+  <%= f.text_field :email, :placeholder => "EMAIL" %><br/>
+  <%= f.password_field :password, :placeholder => "PASSWORD" %><br/>
+  <%= f.submit "SIGN UP", :class => "loginButton" %>
+<% end %>
