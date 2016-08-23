@@ -17,25 +17,27 @@
 
 $(document).ready(function(){
   console.log('loaded')
+
   function getStockPrices(){
-    var stock = $('#stock').val()
+    let stock = $('#stock').val()
 
-    var stockPrice = [];
-    var inflationArr = [];
+    let stockPrice = [];
+    let inflationArr = [];
 
-    //ajax get to quandl api for stock data
+    //ajax request to quandl api for stock data
     $.get('https://www.quandl.com/api/v3/datasets/WIKI/' + stock + '.json?api_key=4CUC7ab1CjmVy61uWCcA&collapse=weekly')
-    .done(function(data){
-      //clear the graph with every search, prevents chart js glitch
-      var $graphDiv = $('.graph')
-      var $graph = $('#graph')
+    .done((data)=>{
+      //clear the graph with every search, prevents chart rendering glitch
+      let $graphDiv = $('.graph')
+      let $graph = $('#graph')
       $('img').remove()
 
       $graph.remove()
       $graphDiv.append($('<canvas>').attr('id', 'graph'))
 
-      data.dataset.data.forEach(function(dailyStock){
-        var stockObject = {}
+      //create stock object for rendering
+      data.dataset.data.forEach((dailyStock)=>{
+        let stockObject = {}
 
         stockObject["date"] = dailyStock[0]
         stockObject["price"] = dailyStock[4]
@@ -122,14 +124,15 @@ $(document).ready(function(){
     }
 
     // create inflation adjusted array, push object into an array
-    var inflationAdj = []
+    let inflationAdj = []
 
-    stockPrice.forEach(function(data){
-      var dataObj = {}
+    stockPrice.forEach((data)=>{
+      let dataObj = {}
 
-      var year = data.date.substring(0,4);
-      var price = data.price;
+      let year = data.date.substring(0,4);
+      let price = data.price;
 
+      //date stays the same, calculate price against CPI
       dataObj["date"] = data.date;
       dataObj["price"] = Number.parseFloat((price * (CPI[2016]/CPI[year])).toFixed(2));
 
@@ -143,24 +146,24 @@ $(document).ready(function(){
   function renderGraph(stockPrice, inflationAdj){
     $('#graph').remove()
     //create arrays to chart data
-    var dates = [];
-    var prices = [];
-    var inflated = []
+    let dates = [];
+    let prices = [];
+    let inflated = []
 
-    stockPrice.forEach(function(pricePoint){
+    stockPrice.forEach((pricePoint)=>{
       dates.unshift(pricePoint.date)
       prices.unshift(pricePoint.price)
     })
 
-    inflationAdj.forEach(function(pricePoint){
+    inflationAdj.forEach((pricePoint)=>{
       inflated.unshift(pricePoint.price)
     })
 
     //render graph
-    var $graph = $('<canvas>').attr('id', 'graph')
+    let $graph = $('<canvas>').attr('id', 'graph')
     $('.graph').append($graph)
 
-    var stockGraph = new Chart($graph, {
+    let stockGraph = new Chart($graph, {
         type: 'line',
         data: {
             labels: dates, //dates go here
@@ -189,12 +192,12 @@ $(document).ready(function(){
       $('#saveButton').remove()
 
       //create save buttons
-      var $saveStock = $('<button>').attr('id', 'saveButton').text('SAVE')
+      let $saveStock = $('<button>').attr('id', 'saveButton').text('SAVE')
       $('#searchButton').after($saveStock)
 
       //create heart animation for save
-      $saveStock.click(function(){
-        var $heart = $('<img>').attr('src', 'http://en.xn--icne-wqa.com/images/icones/1/9/as-coeur-bal.png')
+      $saveStock.click(()=>{
+        let $heart = $('<img>').attr('src', 'http://en.xn--icne-wqa.com/images/icones/1/9/as-coeur-bal.png')
                                .attr('id', 'heart')
                                .css('position', 'absolute')
 
@@ -210,15 +213,17 @@ $(document).ready(function(){
 
   function saveStock(stockPrice, inflationAdj){
     if ($('#stock').val() !== ''){
-      var stockName = $('#stock').val().toUpperCase()
+      let stockName = $('#stock').val().toUpperCase()
 
-      var data = {
+      //convert to json for database
+      let data = {
         stock_name: stockName,
         stock_data: JSON.stringify(stockPrice),
         inflation_adj: JSON.stringify(inflationAdj)
       }
 
-      $.post('/saved_stocks', data).done(function(response){
+      //save to database
+      $.post('/saved_stocks', data).done((response)=>{
         renderDropdown(stockName)
         console.log('posted to database')
       })
@@ -227,9 +232,8 @@ $(document).ready(function(){
 
 
   function renderDropdown(stockName){
-    var currentStock = stockName;
-    console.log(currentStock)
-    var $dropdown = $('#dropdown')
+    let currentStock = stockName;
+    let $dropdown    = $('#dropdown')
 
     $dropdown.empty()
     $dropdown.append($('<option>')
@@ -238,11 +242,10 @@ $(document).ready(function(){
              .attr('selected', 'selected'))
 
     //ajax call to db to populate dropdown names
-    $.get('/saved_stocks').done(function(data){
+    $.get('/saved_stocks').done((data)=>{
 
-      data.forEach(function(savedStock){
-        // console.log(savedStock.id)
-        var $option = $('<option>').text(savedStock.stock_name)
+      data.forEach((savedStock)=>{
+        let $option = $('<option>').text(savedStock.stock_name)
                                    .attr('id', savedStock.id)
         $('#dropdown').append($option)
       })
@@ -256,14 +259,14 @@ $(document).ready(function(){
 
       //add delete button for each stock
       $('#deleteButton').remove()
-      var $deleteButton = $('<button>')
+      let $deleteButton = $('<button>')
                             .text('DELETE')
                             .attr('id','deleteButton')
 
       $('.saved').append($deleteButton)
 
       //fire render stock function depending on selected stock
-      var favStock = $('#dropdown').val()
+      let favStock = $('#dropdown').val()
       getSavedStock(favStock)
 
       //fire delete function
@@ -273,13 +276,14 @@ $(document).ready(function(){
 
 
   function deleteStock(){
-    var stockID = $('#dropdown option:selected').attr('id')
+    let stockID = $('#dropdown option:selected').attr('id')
 
+    //get id from saved stock, delete
     if($('#dropdown option:selected').attr('id')){
       $.ajax({
         url: '/saved_stocks/' + stockID,
         method: 'delete'
-      }).done(function(response){
+      }).done((response)=>{
         $('#graph').fadeOut()
         renderDropdown()
       })
@@ -288,8 +292,8 @@ $(document).ready(function(){
 
 
   function getSavedStock(favStock){
-    $.get('/saved_stocks').done(function(data){
-      savedStock = data.filter(function(stock){
+    $.get('/saved_stocks').done((data)=>{
+      savedStock = data.filter((stock)=>{
         return stock.stock_name === favStock;
       })
 
@@ -299,8 +303,8 @@ $(document).ready(function(){
 
 
   function renderSavedStock(savedStock){
-    var stockPrice    = JSON.parse(savedStock[0].stock_data)
-    var inflationAdj = JSON.parse(savedStock[0].inflation_adj)
+    let stockPrice    = JSON.parse(savedStock[0].stock_data)
+    let inflationAdj  = JSON.parse(savedStock[0].inflation_adj)
     renderGraph(stockPrice, inflationAdj)
   };
 
@@ -308,7 +312,13 @@ $(document).ready(function(){
   $(function(){
     renderDropdown()
 
-    $('#searchButton').click(function(){
+    $(document).bind('keypress', function(event){
+      if (event.keyCode == 13){
+        $('#searchButton').trigger('click')
+      }
+    })
+
+    $('#searchButton').click(()=>{
       //remove graph and loading images
       $('.graph').empty()
       $('img').remove()
