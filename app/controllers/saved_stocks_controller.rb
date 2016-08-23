@@ -9,18 +9,8 @@ class SavedStocksController < ApplicationController
 
   def create
     stock = {user_id: session[:user_id], stock_name: params[:stock_name], stock_data: params[:stock_data], inflation_adj: params[:inflation_adj]}
-
-    # dbStock = SavedStock.where(stock_name: params[:stock_name])
-    # puts dbStock.stock_name
-
-    # if !stock
     SavedStock.create stock
     render :json => SavedStock.last
-    # elsif dbStock[:user_id] != session[:user_id]
-      # SavedStock.create stock
-      # render :json => SavedStock.last
-    # else
-      # render :json => {:added => false}
   end
 
   def destroy
